@@ -21,7 +21,8 @@ async function startServer() {
             id: ID!
             title: String!
             completed: Boolean!
-            userId: ID!
+            user: User
+        
         }
 
         type Query {
@@ -30,12 +31,18 @@ async function startServer() {
             getUser(id: ID!): User
         }
         `,
+
+
         resolvers: {
+            Todo: {
+                user: async (parent) => (await axios.get(`http://jsonplaceholder.typicode.com/users/${parent.userId}`)).data
+            },
+
             Query: {
                 // Corrected field name to match schema
                 getTodo: async () => (await axios.get('http://jsonplaceholder.typicode.com/todos')).data,
                 getAllUsers: async () => (await axios.get('http://jsonplaceholder.typicode.com/users')).data,
-                getUser: async (_, { id }) => (await axios.get(`http://jsonplaceholder.typicode.com/users/${id}`)).data
+                getUser: async (parent, { id }) => (await axios.get(`http://jsonplaceholder.typicode.com/users/${id}`)).data,
             }
         }
     });
